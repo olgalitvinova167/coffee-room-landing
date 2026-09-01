@@ -34,6 +34,9 @@ const emptyValues: OrderFormValues = {
   orderType: "pickup",
   date: "",
   time: "",
+  streetAddress: "",
+  city: "",
+  postcode: "",
   coffeeId: "",
   bakeryId: "",
   quantity: 1,
@@ -222,6 +225,32 @@ export function OrderOnline() {
                   </div>
                 </Field>
               </div>
+
+              {isDelivery ? (
+                <div className="mt-6 grid gap-5 sm:grid-cols-3">
+                  <Field label="Street Address" error={errors["streetAddress"]}>
+                    <Input
+                      value={values.streetAddress ?? ""}
+                      onChange={(e) => set("streetAddress", e.target.value)}
+                      placeholder="123 Maple Street"
+                    />
+                  </Field>
+                  <Field label="City" error={errors["city"]}>
+                    <Input
+                      value={values.city ?? ""}
+                      onChange={(e) => set("city", e.target.value)}
+                      placeholder="Brooklyn"
+                    />
+                  </Field>
+                  <Field label="Postcode" error={errors["postcode"]}>
+                    <Input
+                      value={values.postcode ?? ""}
+                      onChange={(e) => set("postcode", e.target.value)}
+                      placeholder="11201"
+                    />
+                  </Field>
+                </div>
+              ) : null}
             </div>
 
             <div>

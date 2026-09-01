@@ -11,18 +11,46 @@ export const TAX_RATE = 0.08875;
 export const orderTypeSchema = z.enum(["pickup", "delivery"]);
 export type OrderType = z.infer<typeof orderTypeSchema>;
 
-export const orderFormSchema = z.object({
-  fullName: z.string().min(2, "Please enter your full name"),
-  phone: z.string().min(7, "Please enter a valid phone number"),
-  email: z.string().email("Please enter a valid email address"),
-  orderType: orderTypeSchema,
-  date: z.string().min(1, "Please choose a date"),
-  time: z.string().min(1, "Please choose a time"),
-  coffeeId: z.string().optional(),
-  bakeryId: z.string().optional(),
-  quantity: z.number().int().min(1).max(20),
-  notes: z.string().max(200).optional(),
-});
+export const orderFormSchema = z
+  .object({
+    fullName: z.string().min(2, "Please enter your full name"),
+    phone: z.string().min(7, "Please enter a valid phone number"),
+    email: z.string().email("Please enter a valid email address"),
+    orderType: orderTypeSchema,
+    date: z.string().min(1, "Please choose a date"),
+    time: z.string().min(1, "Please choose a time"),
+    streetAddress: z.string().optional(),
+    city: z.string().optional(),
+    postcode: z.string().optional(),
+    coffeeId: z.string().optional(),
+    bakeryId: z.string().optional(),
+    quantity: z.number().int().min(1).max(20),
+    notes: z.string().max(200).optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.orderType !== "delivery") return;
+    if (!data.streetAddress?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Please enter your street address",
+        path: ["streetAddress"],
+      });
+    }
+    if (!data.city?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Please enter your city",
+        path: ["city"],
+      });
+    }
+    if (!data.postcode?.trim()) {
+      ctx.addIssue({
+        code: "custom",
+        message: "Please enter your postcode",
+        path: ["postcode"],
+      });
+    }
+  });
 
 export type OrderFormValues = z.infer<typeof orderFormSchema>;
 
@@ -45,7 +73,12 @@ export interface Order {
   reference: string;
   placedAt: string;
   customer: { fullName: string; phone: string; email: string };
-  fulfillment: { type: OrderType; date: string; time: string };
+  fulfillment: {
+    type: OrderType;
+    date: string;
+    time: string;
+    address?: { streetAddress: string; city: string; postcode: string };
+  };
   items: OrderLineItem[];
   totals: OrderTotals;
   notes?: string | undefined;
@@ -85,11 +118,24 @@ export function createOrderReference() {
 
 export function buildOrder(values: OrderFormValues): Order {
   const items = buildLineItems(values);
+  const address =
+    values.orderType === "delivery"
+      ? {
+          streetAddress: values.streetAddress!.trim(),
+          city: values.city!.trim(),
+          postcode: values.postcode!.trim(),
+        }
+      : undefined;
   return {
     reference: createOrderReference(),
     placedAt: new Date().toISOString(),
     customer: { fullName: values.fullName, phone: values.phone, email: values.email },
-    fulfillment: { type: values.orderType, date: values.date, time: values.time },
+    fulfillment: {
+      type: values.orderType,
+      date: values.date,
+      time: values.time,
+      ...(address ? { address } : {}),
+    },
     items,
     totals: calculateTotals(items),
     notes: values.notes?.trim() || undefined,
