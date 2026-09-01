@@ -98,7 +98,7 @@ export const CAFE = {
   email: "hello@coffeeroom.com",
   instagram: "@coffeeroombk",
   hours: [
-    { days: "Mon – Fri", time: "7:00am – 7:00pm" },
-    { days: "Sat – Sun", time: "8:00am – 7:00pm" },
+    { days: "Mon – Fri", time: "7:00am – 5:00pm" },
+    { days: "Sat – Sun", time: "9:00am – 5:00pm" },
   ],
 } as const;
