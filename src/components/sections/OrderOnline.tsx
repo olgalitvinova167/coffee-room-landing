@@ -34,8 +34,8 @@ const emptyValues: OrderFormValues = {
   orderType: "pickup",
   date: "",
   time: "",
-  coffeeId: NONE,
-  bakeryId: NONE,
+  coffeeId: "",
+  bakeryId: "",
   quantity: 1,
   notes: "",
 };
@@ -52,8 +52,8 @@ export function OrderOnline() {
     () =>
       buildLineItems({
         ...values,
-        coffeeId: values.coffeeId === NONE ? undefined : values.coffeeId,
-        bakeryId: values.bakeryId === NONE ? undefined : values.bakeryId,
+        coffeeId: values.coffeeId && values.coffeeId !== NONE ? values.coffeeId : undefined,
+        bakeryId: values.bakeryId && values.bakeryId !== NONE ? values.bakeryId : undefined,
       }),
     [values],
   );
@@ -66,8 +66,8 @@ export function OrderOnline() {
     e.preventDefault();
     const candidate: OrderFormValues = {
       ...values,
-      coffeeId: values.coffeeId === NONE ? undefined : values.coffeeId,
-      bakeryId: values.bakeryId === NONE ? undefined : values.bakeryId,
+      coffeeId: values.coffeeId && values.coffeeId !== NONE ? values.coffeeId : undefined,
+      bakeryId: values.bakeryId && values.bakeryId !== NONE ? values.bakeryId : undefined,
     };
     const parsed = orderFormSchema.safeParse(candidate);
     const nextErrors: Record<string, string> = {};
@@ -228,7 +228,7 @@ export function OrderOnline() {
               <h3 className="font-display text-xl font-semibold text-terracotta">Your Order</h3>
               <div className="mt-5 grid gap-5 sm:grid-cols-[1fr_1fr_auto]">
                 <Field label="Coffee Selection">
-                  <Select value={values.coffeeId ?? NONE} onValueChange={(v) => set("coffeeId", v)}>
+                  <Select value={values.coffeeId ?? ""} onValueChange={(v) => set("coffeeId", v)}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select your coffee" />
                     </SelectTrigger>
@@ -243,7 +243,7 @@ export function OrderOnline() {
                   </Select>
                 </Field>
                 <Field label="Bakery Selection">
-                  <Select value={values.bakeryId ?? NONE} onValueChange={(v) => set("bakeryId", v)}>
+                  <Select value={values.bakeryId ?? ""} onValueChange={(v) => set("bakeryId", v)}>
                     <SelectTrigger className="w-full">
                       <SelectValue placeholder="Select your bakery item" />
                     </SelectTrigger>
