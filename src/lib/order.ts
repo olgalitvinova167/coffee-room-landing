@@ -118,6 +118,14 @@ export function createOrderReference() {
 
 export function buildOrder(values: OrderFormValues): Order {
   const items = buildLineItems(values);
+  const address =
+    values.orderType === "delivery"
+      ? {
+          streetAddress: values.streetAddress!.trim(),
+          city: values.city!.trim(),
+          postcode: values.postcode!.trim(),
+        }
+      : undefined;
   return {
     reference: createOrderReference(),
     placedAt: new Date().toISOString(),
@@ -126,14 +134,7 @@ export function buildOrder(values: OrderFormValues): Order {
       type: values.orderType,
       date: values.date,
       time: values.time,
-      address:
-        values.orderType === "delivery"
-          ? {
-              streetAddress: values.streetAddress!.trim(),
-              city: values.city!.trim(),
-              postcode: values.postcode!.trim(),
-            }
-          : undefined,
+      ...(address ? { address } : {}),
     },
     items,
     totals: calculateTotals(items),
