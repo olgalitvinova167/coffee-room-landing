@@ -1,5 +1,8 @@
 import { useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { CalendarDays, Check, Clock, Leaf, Lock, Minus, Plus, ShoppingBag, Truck } from "lucide-react";
+import { sendOrderToTelegram } from "@/lib/telegram.functions";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,9 +47,13 @@ const emptyValues: OrderFormValues = {
 };
 
 export function OrderOnline() {
+  const sendOrder = useServerFn(sendOrderToTelegram);
   const [values, setValues] = useState<OrderFormValues>(emptyValues);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [placedOrder, setPlacedOrder] = useState<Order | null>(null);
+
 
   const set = <K extends keyof OrderFormValues>(key: K, value: OrderFormValues[K]) =>
     setValues((v) => ({ ...v, [key]: value }));
@@ -65,8 +72,9 @@ export function OrderOnline() {
   const isDelivery = values.orderType === "delivery";
   const label = isDelivery ? "Delivery" : "Pick-up";
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (submitting) return;
     const candidate: OrderFormValues = {
       ...values,
       coffeeId: values.coffeeId && values.coffeeId !== NONE ? values.coffeeId : undefined,
@@ -86,17 +94,28 @@ export function OrderOnline() {
     }
 
     setErrors(nextErrors);
-    if (Object.keys(nextErrors).length > 0) return;
+    setSubmitError(null);
+    if (Object.keys(nextErrors).length > 0 || !parsed.success) return;
 
-    const order = buildOrder(parsed.success ? parsed.data : candidate);
-    // Clean order object — ready to POST to a Telegram bot endpoint later.
-    setPlacedOrder(order);
-    setValues(emptyValues);
-    window.setTimeout(
-      () => document.getElementById("order")?.scrollIntoView({ behavior: "smooth" }),
-      0,
-    );
+    setSubmitting(true);
+    try {
+      const result = await sendOrder({ data: parsed.data });
+      setPlacedOrder(result.order);
+      setValues(emptyValues);
+      window.setTimeout(
+        () => document.getElementById("order")?.scrollIntoView({ behavior: "smooth" }),
+        0,
+      );
+    } catch (error) {
+      console.error(error);
+      setSubmitError(
+        "We couldn't send your order just now. Please try again, or call us to order by phone.",
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
+
 
   if (placedOrder) {
     return (
