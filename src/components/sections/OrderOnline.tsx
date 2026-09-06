@@ -424,10 +424,17 @@ export function OrderOnline() {
               </p>
             </div>
 
-            <Button type="submit" size="lg" className="mt-6 w-full">
-              Place Order
+            {submitError ? (
+              <p className="mt-5 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                {submitError}
+              </p>
+            ) : null}
+
+            <Button type="submit" size="lg" className="mt-6 w-full" disabled={submitting}>
+              {submitting ? "Sending your order…" : "Place Order"}
               <ShoppingBag className="size-4" />
             </Button>
+
             <p className="mt-3 flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
               <Lock className="size-3" />
               Secure checkout. Your information is safe with us.
