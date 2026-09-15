@@ -39,6 +39,7 @@ function Index() {
         <PromoBanner />
       </main>
       <SiteFooter />
+      <AskAssistant />
     </div>
   );
 }
