@@ -7,6 +7,7 @@ import { About } from "@/components/sections/About";
 import { OrderOnline } from "@/components/sections/OrderOnline";
 import { PromoBanner } from "@/components/sections/PromoBanner";
 import { SiteFooter } from "@/components/sections/SiteFooter";
+import { AskAssistant } from "@/components/AskAssistant";
 
 const title = "Coffee Room — Cozy Coffee & Bakery in Brooklyn";
 const description =
