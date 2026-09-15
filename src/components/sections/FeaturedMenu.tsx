@@ -27,6 +27,11 @@ export function FeaturedMenu() {
         ))}
       </div>
 
+      <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
+        Your coffee, your way — choose whole, oat, or almond milk in any
+        coffee. Alternative milk <span className="font-medium text-terracotta">+$0.50</span>.
+      </p>
+
       <div id="bakery" className="mt-14 scroll-mt-24">
         <p className="eyebrow text-terracotta">From the Bakery</p>
         <h2 className="mt-2 font-display text-3xl font-bold text-foreground sm:text-4xl">
