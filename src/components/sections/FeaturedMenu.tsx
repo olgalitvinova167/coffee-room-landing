@@ -1,6 +1,11 @@
 import { ArrowRight } from "lucide-react";
 import { ProductCard } from "@/components/ProductCard";
 import { BAKERY_ITEMS, COFFEE_ITEMS } from "@/data/menu";
+import { CAFE } from "@/data/cafe";
+
+const milkNames = new Intl.ListFormat("en-US", { type: "disjunction" }).format(
+  CAFE.milk.options.map((option) => option.id),
+);
 
 export function FeaturedMenu() {
   return (
@@ -28,8 +33,11 @@ export function FeaturedMenu() {
       </div>
 
       <p className="mt-6 text-sm leading-relaxed text-muted-foreground">
-        Your coffee, your way — choose whole, oat, or almond milk in any
-        coffee. Alternative milk <span className="font-medium text-terracotta">+$0.50</span>.
+        Your coffee, your way — choose {milkNames} milk in any coffee. Alternative milk{" "}
+        <span className="font-medium text-terracotta">
+          +${CAFE.milk.alternativeSurcharge.toFixed(2)}
+        </span>
+        .
       </p>
 
       <div id="bakery" className="mt-14 scroll-mt-24">

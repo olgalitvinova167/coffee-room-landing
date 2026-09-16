@@ -90,15 +90,4 @@ export const BAKERY_ITEMS = MENU_ITEMS.filter((i) => i.category === "bakery");
 
 export const getMenuItem = (id: string) => MENU_ITEMS.find((i) => i.id === id);
 
-export const CAFE = {
-  name: "Coffee Room",
-  tagline: "Coffee & Bakery",
-  address: "123 Maple Street, Brooklyn, NY 11201",
-  phone: "(718) 123-4567",
-  email: "hello@coffeeroom.com",
-  instagram: "@coffeeroombk",
-  hours: [
-    { days: "Mon – Fri", time: "7:00am – 5:00pm" },
-    { days: "Sat – Sun", time: "9:00am – 5:00pm" },
-  ],
-} as const;
+export { CAFE } from "./cafe";

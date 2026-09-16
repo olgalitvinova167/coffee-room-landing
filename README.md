@@ -35,3 +35,50 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Coffee Room assistant
+
+Free-text chat uses a TanStack Start server function and the OpenAI Responses API.
+Quick actions remain local and work without API credentials. Unknown cafe questions offer a conversational Telegram enquiry flow. Confirmed same-day delivery areas are Downtown Brooklyn, Brooklyn Heights, DUMBO, Cobble Hill, Boerum Hill and Fort Greene. Outside coverage is unavailable and does not trigger enquiries; fees, minimums and lead times remain unknown. Custom cakes, large orders, catering and other useful unresolved café requests can trigger enquiries.
+
+Set `OPENAI_API_KEY` and `OPENAI_MODEL` in the server environment. The model must support
+Responses API Structured Outputs. `.env.example` contains placeholders only; never put a
+key in a `VITE_` variable or commit real environment files.
+
+For local development, copy `.env.example` to the ignored `.env.local`, fill in both values,
+and start with Node 24 (the bundled runtime) so the variables reach the server process:
+
+```sh
+node --env-file=.env.local node_modules/vite/bin/vite.js dev --host 127.0.0.1
+```
+
+Restart after changing environment values. Set equivalent server secrets in the hosting
+environment for deployment; the ordinary Vite client environment is not sufficient.
+Missing credentials show a recoverable unavailable message instead of making a request.
+
+Requests use `store: false`, a 20-second timeout, a 1,000-character question limit and at most
+six recent turns of 2,000 characters each. Chat remains in React memory. Order/contact form
+data is never read. Contact-bearing chat turns are blocked/omitted using conservative pattern
+checks; this is not a general-purpose personal-data detector, so users should not enter personal
+details. Provider data-retention policies still apply despite `store: false`.
+
+Menu facts come from `src/data/menu.ts`, business facts from `src/data/cafe.ts`. Regular hours
+are calculated in code, with today/tomorrow resolved in `America/New_York`. Bare weekday
+names mean the next occurrence including today; “next Friday” excludes today. Holiday hours
+and advance-order capacity remain unconfirmed. Natural-language intent extraction and answer
+grounding still require live model evaluation before public release. Public deployment should
+also configure host-level rate limits and spending controls.
+
+Run focused tests (mocked OpenAI, no key or network needed) with Node 24:
+
+```sh
+node --test tests/assistant.test.ts
+node node_modules/typescript/bin/tsc --noEmit
+node node_modules/vite/bin/vite.js build
+```
+
+## Assistant enquiries
+
+Set server-only TELEGRAM_ENQUIRY_BOT_TOKEN to the token for @coffee_room_enquiry_bot (Coffee Room Assistant), and TELEGRAM_ENQUIRY_CHAT_ID to 1376058571. Enquiries use the direct Telegram Bot API, independently of the Lovable Telegram connector. Restart after configuring the local environment. The existing order handler and its LOVABLE_API_KEY / TELEGRAM_API_KEY configuration are unchanged. Only the reviewed name, phone, email and message plus a generated reference and timestamp are sent; chat history is never included. Sending requires an explicit Send enquiry click. Name, phone and email are collected one at a time, then the prefilled message can be edited and reviewed before sending. These details are excluded from OpenAI history. Failures retain the review details; retries are manual and an ambiguous timeout may result in duplicates.
+
+Run enquiry and assistant tests with: node --test tests/assistant.test.ts tests/enquiry.test.ts
